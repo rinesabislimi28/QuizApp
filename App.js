@@ -1,212 +1,302 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
 
-
+// 1. DATA SOURCE: Array of objects containing quiz questions
 const quizQuestions = [
   {
     id: 1,
-    question: "1. What is React Native?",
-    options: [
-      "a. JavaScript library",
-      "b. Javascript framework",
-      "c. Programming language",
-      "d. Neither of the above"
-    ],
-    correctAnswer: 1
+    question: "Which hook handles state in React Native?",
+    options: ["useEffect", "useState", "useContext", "useMemo"],
+    correctAnswer: 1,
   },
   {
     id: 2,
-    question: "2. Components work on: ",
-    options: [
-      "a. IOS platform",
-      "b. Android platform",
-      "c. Both IOS & Android",
-      "d. Neither of the above"
-    ],
-    correctAnswer: 2
+    question: "What is the default Flexbox direction?",
+    options: ["Row", "Column", "Stretch", "Center"],
+    correctAnswer: 1,
   },
   {
     id: 3,
-    question: "3. What are props?",
-    options: [
-      "a. Dynamic rendering",
-      "b. Passing data between components",
-      "c. Importing components",
-      "d. Neither of the above"
-    ],
-    correctAnswer: 1
+    question: "Which component is like a <div> in React Native?",
+    options: ["Text", "Image", "View", "Button"],
+    correctAnswer: 2,
   },
   {
     id: 4,
-    question: "2. React Native is used for: ",
-    options: [
-      "a. Web apps",
-      "b. Mobile apps",
-      "c. Desktop software",
-      "d. None of the above"
-    ],
-    correctAnswer: 1
-  }
-]
+    question: "What prop is used for button clicks?",
+    options: ["onClick", "onPress", "onTap", "onChange"],
+    correctAnswer: 1,
+  },
+  {
+    id: 5,
+    question: "Which tool runs Expo apps on phones?",
+    options: ["Expo Go", "Android Studio", "VS Code", "Terminal"],
+    correctAnswer: 0,
+  },
+  {
+    id: 6,
+    question: "How do you pass data to child components?",
+    options: ["State", "Hooks", "Props", "Global"],
+    correctAnswer: 2,
+  },
+  {
+    id: 7,
+    question: "Who created React Native?",
+    options: ["Google", "Meta", "Apple", "Microsoft"],
+    correctAnswer: 1,
+  },
+];
 
 export default function App() {
-
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  // 2. STATE MANAGEMENT
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
 
-  const question = quizQuestions[currentQuestion];
+  const quizFinished = currentIndex >= quizQuestions.length;
+  const currentQuestion = quizQuestions[currentIndex];
 
+  // 3. HANDLE ANSWER LOGIC
   const handleAnswer = (selectedIndex) => {
-    if (selectedIndex === question.correctAnswer) {
+    if (selectedIndex === currentQuestion.correctAnswer) {
       setScore(score + 1);
     }
-    setCurrentQuestion(currentQuestion + 1);
+    setCurrentIndex(currentIndex + 1);
   };
 
-  const restartQuiz = () => {
-    setCurrentQuestion(0);
-    setScore(0);
-  }
+  // 4. RESULTS SCREEN (Early Return)
+  if (quizFinished) {
+    const percentage = (score / quizQuestions.length) * 100;
+    const passed = percentage >= 70;
 
-  if (currentQuestion >= quizQuestions.length) {
-    const percentage = (score * 100) / quizQuestions.length;
     return (
-      <View style={styles.resultContainer}>
-        <Text style={styles.title}>Test Complete 🎉</Text>
-        <View style={styles.resultBox}>
-          <Text style={styles.resultLabel}>Result:</Text>
-          <Text style={styles.scoreText}>{score}/{quizQuestions.length}</Text>
-          <Text style={styles.percentageText}>{percentage.toFixed(0)}%</Text>
+      <View style={styles.container}>
+        <View style={styles.glow1} />
+        <View style={styles.glow2} />
+
+        <View style={styles.resultContainer}>
+          <Text style={styles.emoji}>{passed ? "🏆" : "🎯"}</Text>
+          <Text style={styles.resultTitle}>
+            {passed ? "QUIZ COMPLETED" : "TRY AGAIN"}
+          </Text>
+
+          <View style={styles.statsCard}>
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>SCORE</Text>
+              <Text style={styles.statValue}>
+                {score}/{quizQuestions.length}
+              </Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>PERCENTAGE</Text>
+              <Text style={styles.statValue}>
+                {percentage.toFixed(0)}%
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.restartButton}
+            onPress={() => {
+              setCurrentIndex(0);
+              setScore(0);
+            }}
+          >
+            <Text style={styles.restartText}>RESTART QUIZ</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.restartButton} onPress={restartQuiz}>
-          <Text style={styles.restartText}>Restart</Text>
-        </TouchableOpacity>
       </View>
     );
   }
 
+  // 5. PROGRESS BAR CALCULATION
+  const progress = ((currentIndex + 1) / quizQuestions.length) * 100;
+
+  // 6. QUIZ SCREEN
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quiz App</Text>
-      <Text>Question {(currentQuestion + 1)} of {quizQuestions.length}</Text>
+      <View style={styles.glow1} />
+      <View style={styles.glow2} />
 
-      <Text style={styles.questionText}>{question.question}</Text>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <Text style={styles.logo}>REACT QUIZ</Text>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          </View>
+        </View>
 
-      <View style={styles.optionsContainer}>
-        {question.options.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.optionButton}
-            onPress={() => handleAnswer(index)}
-          >
-            <Text style={styles.optionText}>{option}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <StatusBar style="auto" />
+        <View style={styles.card}>
+          <Text style={styles.questionCount}>
+            QUESTION {currentIndex + 1} OF {quizQuestions.length}
+          </Text>
+
+          <Text style={styles.questionText}>
+            {currentQuestion.question}
+          </Text>
+
+          {currentQuestion.options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.optionButton}
+              onPress={() => handleAnswer(index)}
+            >
+              <Text style={styles.optionText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </SafeAreaView>
+
+      <StatusBar style="light" />
     </View>
   );
 }
 
+// 7. STYLES
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#efebe9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20
+    backgroundColor: "#0F172A",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 34,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 18,
-    color: '#604402ff',
+  glow1: {
+    position: "absolute",
+    top: -100,
+    left: -100,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: "#6366F1",
+    opacity: 0.5,
+  },
+  glow2: {
+    position: "absolute",
+    bottom: -50,
+    right: -50,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: "#FF00E5",
+    opacity: 0.4,
+  },
+  safeArea: {
+    width: "90%",
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  logo: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "900",
+    letterSpacing: 4,
+    marginBottom: 15,
+  },
+  progressTrack: {
+    width: "100%",
+    height: 6,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 10,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#6366F1",
+  },
+  card: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 25,
+    padding: 25,
+  },
+  questionCount: {
+    color: "#FF00E5",
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 10,
+    textAlign: "center",
   },
   questionText: {
+    color: "#FFF",
     fontSize: 22,
-    color: '#6d4c41',
-    lineHeight: 30,
-    marginVertical: 20,
-    textAlign: 'center'
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 25,
   },
   optionButton: {
-    backgroundColor: '#d7ccc8',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    paddingVertical: 16,
+    borderRadius: 14,
     marginBottom: 12,
-    width: 260,
-    shadowColor: '#8d6e63',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 4
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
   },
   optionText: {
-    color: '#3e2723',
-    fontSize: 17,
-    textAlign: 'center',
-    fontWeight: '600'
-  },
-  optionsContainer: {
-    marginBottom: 15
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   resultContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 40,
+    width: "85%",
+    alignItems: "center",
+  },
+  emoji: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
+  resultTitle: {
+    color: "#FFF",
+    fontSize: 22,
+    fontWeight: "900",
+    marginBottom: 30,
+  },
+  statsCard: {
+    flexDirection: "row",
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#8d6e63',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5
+    padding: 20,
+    marginBottom: 30,
   },
-  resultBox: {
-    backgroundColor: '#e0d4cb',
-    borderRadius: 15,
-    padding: 25,
-    alignItems: 'center',
-    marginBottom: 25,
-    shadowColor: '#8d6e63',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 4
+  statBox: {
+    flex: 1,
+    alignItems: "center",
   },
-  resultLabel: {
+  divider: {
+    width: 1,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  statLabel: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+  statValue: {
+    color: "#FFF",
     fontSize: 24,
-    fontWeight: '700',
-    color: '#5d4037',
-    marginBottom: 12
-  },
-  scoreText: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#8d6e63',
-    marginBottom: 10
-  },
-  percentageText: {
-    fontSize: 20,
-    color: '#a1887f',
-    fontWeight: '600'
+    fontWeight: "900",
   },
   restartButton: {
-    backgroundColor: '#d7ccc8',
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#8d6e63',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    elevation: 4
+    backgroundColor: "#FF00E5",
+    paddingVertical: 18,
+    width: "100%",
+    borderRadius: 20,
+    alignItems: "center",
   },
   restartText: {
-    color: '#3e2723',
-    fontSize: 18,
-    fontWeight: '700'
-  }
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "900",
+  },
 });
