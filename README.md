@@ -85,15 +85,15 @@ This project demonstrates the following core concepts covered in class:
 -   Student Name: Rinesa Bislimi
 -   Course: Mobile Application Development
 
-## 📸 Screenshots
+---
 
-Home Screen
+## 📸 Application Screenshots
 
-Result Screen
+| Home | Result |
+|:---:|:---:|
+| ![Home](./screenshots/quiz-screen.jpeg) | ![Result](./screenshots/result-screen.jpeg) | 
 
-![Home](screenshots/quiz-screen.jpeg)
-
-![Result](screenshots/result-screen.jpeg)
+---
 
 ### ✅ Status
 
